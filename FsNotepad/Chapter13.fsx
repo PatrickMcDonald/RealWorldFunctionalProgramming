@@ -10,19 +10,29 @@ open WorldBank
 #load "XmlHelpers.fs"
 open XmlHelpers
 
-let doc =
-    worldBankRequest(["countries"], ["region", "ECS"])
+let EuropeAndCentralAsia = ["region", "ECS"]
+let NorthAmericanAndCaribbean = ["region", "NAC"]
+
+let doc = // API no longer returns result for aggregate region (NA)
+    worldBankRequest(["countries"], [], Some(300))
     |> Async.RunSynchronously
 
-let regions = seq { 
+let regionNames regions =
+    regions |> Seq.map (xelem "name" >> xvalue)
+
+let allRegions = seq { 
     let countries = doc |> xnested [ "countries" ]
     for country in countries |> xelems "country" do
-        yield country |> xelem "name" |> xvalue }
+        yield country }
 
+let naRegions = 
+    allRegions 
+        |> Seq.filter(fun country ->
+            (country |> xelem "region" |> xattr "id") = "NA")
 
 let rec getIndicatorData(date, indicator, page) = async {
     let args = [ "countries"; "all"; "indicators"; indicator ],
-               [ "date", date; "page", string(page)]
+               [ "date", date; "page", string(page)], None
     let! doc = worldBankRequest args
 
     let pages =
@@ -55,8 +65,6 @@ let readValues parse data = seq {
         for node in root |> xelems "data" do
         yield! node |> readSingleValue parse }
 
-data.[0] |> readValues id 
-
 #load "Units.fs"
 open Measures
 
@@ -79,16 +87,16 @@ let years = [ 1990; 2000; 2005 ]
 let dataAvailable(key) =
     years |> Seq.forall (fun y ->
         (Map.containsKey (y, key) areas) &&
-        (Map.containsKey (y, key) forests));;
+        (Map.containsKey (y, key) forests))
 
 let getForestData(key) =
     [| for y in years do
-        yield calculateForests(areas.[y, key], forests.[y, key]) |];;
+        yield calculateForests(areas.[y, key], forests.[y, key]) |]
 
 let stats = seq {
-    for name in regions do
+    for name in (naRegions |> regionNames) do
         if dataAvailable(name) then
-            yield name, getForestData(name) };;
+            yield name, getForestData(name) }
 
 
 #load "Report.fs"

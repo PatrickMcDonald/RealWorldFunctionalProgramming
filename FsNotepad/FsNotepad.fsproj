@@ -33,10 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
-      <HintPath>..\..\..\..\..\My Documents\Visual Studio 2010\Projects\FsNotepad\lib\FSharpPowerPack\FSharp.PowerPack.dll</HintPath>
+      <HintPath>..\lib\FSharpPowerPack\FSharp.PowerPack.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel">
-      <HintPath>..\..\..\..\..\My Documents\Visual Studio 2010\Projects\FsNotepad\lib\Office\Microsoft.Office.Interop.Excel.dll</HintPath>
+      <HintPath>..\lib\Office\Microsoft.Office.Interop.Excel.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />

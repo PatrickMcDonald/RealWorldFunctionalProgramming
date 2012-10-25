@@ -10,12 +10,14 @@ let queryParms(props) =
               yield key + "=" + HttpUtility.UrlEncode(value:string) }
     |> String.concat "&" |> (+) "&"
 
-let worldBankUrl(functions, props) =
+let worldBankUrl(functions, props, perPage) =
     seq { 
         yield "http://api.worldbank.org"
         for item in functions do
             yield "/" + HttpUtility.UrlEncode(item:string)
-        yield "?per_page=100"
+        match perPage with
+        | None -> yield "?per_page=100"
+        | Some(n:int) -> yield "?per_page=" + string(n)
         yield queryParms(props) }
 //        for key, value in props do
 //            yield "&" + key + "=" + HttpUtility.UrlEncode(value:string) }
